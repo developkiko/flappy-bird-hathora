@@ -1,15 +1,10 @@
-FROM node:16
-
-WORKDIR /app
-
-RUN npm i -g hathora@0.9.9
-
+FROM node:lts-alpine
 ENV NODE_ENV=production
-
-ARG APP_SECRET
-ENV APP_SECRET=${APP_SECRET}
-
+WORKDIR /usr/src/app
+COPY ["package.json", "package-lock.json*", "npm-shrinkwrap.json*", "./"]
+RUN npm install --production --silent && mv node_modules ../
 COPY . .
-RUN hathora build --only server
-
-CMD ["node", "server/dist/index.mjs"]
+EXPOSE 3000
+RUN chown -R node /usr/src/app
+USER node
+CMD ["npm", "start"]
